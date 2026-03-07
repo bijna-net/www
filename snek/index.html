@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Derpy Co-op Snek</title>
+<style>
+body{
+  background:#111;
+  color:white;
+  text-align:center;
+  font-family:monospace;
+}
+canvas{
+  background:#000;
+  margin-top:20px;
+  border:4px solid white;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🐍 Derpy Co-op Snek 🐍</h1>
+<p>
+Player 1: WASD |
+Player 2: Arrow Keys<br>
+Eat food together. Don't bonk walls or each other.
+</p>
+
+<canvas id="game" width="600" height="400"></canvas>
+
+<script>
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const size = 20;
+const width = canvas.width;
+const height = canvas.height;
+
+let snake1 = [{x:100,y:200}];
+let snake2 = [{x:500,y:200}];
+
+let dir1 = {x:size,y:0};
+let dir2 = {x:-size,y:0};
+
+let food = spawnFood();
+let score = 0;
+let gameOver = false;
+
+function spawnFood(){
+  return {
+    x: Math.floor(Math.random()*(width/size))*size,
+    y: Math.floor(Math.random()*(height/size))*size
+  }
+}
+
+document.addEventListener("keydown", e => {
+
+  // Player 1 WASD
+  if(e.key==="w") dir1={x:0,y:-size};
+  if(e.key==="s") dir1={x:0,y:size};
+  if(e.key==="a") dir1={x:-size,y:0};
+  if(e.key==="d") dir1={x:size,y:0};
+
+  // Player 2 Arrows
+  if(e.key==="ArrowUp") dir2={x:0,y:-size};
+  if(e.key==="ArrowDown") dir2={x:0,y:size};
+  if(e.key==="ArrowLeft") dir2={x:-size,y:0};
+  if(e.key==="ArrowRight") dir2={x:size,y:0};
+
+  if(gameOver && e.key==="r") resetGame();
+
+});
+
+function moveSnake(snake,dir){
+
+  const head = {
+    x: snake[0].x + dir.x,
+    y: snake[0].y + dir.y
+  };
+
+  snake.unshift(head);
+
+  if(head.x===food.x && head.y===food.y){
+    score++;
+    food = spawnFood();
+  } else {
+    snake.pop();
+  }
+}
+
+function drawSnake(snake,color){
+  ctx.fillStyle=color;
+  snake.forEach(s=>{
+    ctx.fillRect(s.x,s.y,size,size);
+  });
+}
+
+function collision(head){
+
+  if(head.x<0 || head.y<0 || head.x>=width || head.y>=height)
+    return true;
+
+  for(let s of snake1.concat(snake2).slice(1)){
+    if(head.x===s.x && head.y===s.y) return true;
+  }
+
+  return false;
+}
+
+function update(){
+
+  if(gameOver) return;
+
+  moveSnake(snake1,dir1);
+  moveSnake(snake2,dir2);
+
+  if(collision(snake1[0]) || collision(snake2[0])){
+    gameOver=true;
+  }
+
+}
+
+function draw(){
+
+  ctx.fillStyle="black";
+  ctx.fillRect(0,0,width,height);
+
+  ctx.fillStyle="red";
+  ctx.fillRect(food.x,food.y,size,size);
+
+  drawSnake(snake1,"lime");
+  drawSnake(snake2,"cyan");
+
+  ctx.fillStyle="white";
+  ctx.fillText("Score: "+score,10,20);
+
+  if(gameOver){
+    ctx.fillStyle="white";
+    ctx.font="30px monospace";
+    ctx.fillText("DERP! Game Over",200,200);
+    ctx.font="16px monospace";
+    ctx.fillText("Press R to restart",230,230);
+  }
+
+}
+
+function resetGame(){
+
+  snake1=[{x:100,y:200}];
+  snake2=[{x:500,y:200}];
+
+  dir1={x:size,y:0};
+  dir2={x:-size,y:0};
+
+  food=spawnFood();
+  score=0;
+  gameOver=false;
+}
+
+function loop(){
+
+  update();
+  draw();
+
+}
+
+setInterval(loop,120);
+
+</script>
+
+</body>
+</html>
