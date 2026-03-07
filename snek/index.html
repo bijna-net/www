@@ -11,8 +11,8 @@ body{
 }
 canvas{
   background:#000;
-  margin-top:20px;
   border:4px solid white;
+  margin-top:20px;
 }
 </style>
 </head>
@@ -20,11 +20,7 @@ canvas{
 <body>
 
 <h1>🐍 Derpy Co-op Snek 🐍</h1>
-<p>
-Player 1: WASD |
-Player 2: Arrow Keys<br>
-Eat food together. Don't bonk walls or each other.
-</p>
+<p>Player1: WASD | Player2: Arrow Keys</p>
 
 <canvas id="game" width="600" height="400"></canvas>
 
@@ -37,15 +33,7 @@ const size = 20;
 const width = canvas.width;
 const height = canvas.height;
 
-let snake1 = [{x:100,y:200}];
-let snake2 = [{x:500,y:200}];
-
-let dir1 = {x:size,y:0};
-let dir2 = {x:-size,y:0};
-
-let food = spawnFood();
-let score = 0;
-let gameOver = false;
+let snake1, snake2, dir1, dir2, food, score, gameOver;
 
 function spawnFood(){
   return {
@@ -54,15 +42,28 @@ function spawnFood(){
   }
 }
 
+function resetGame(){
+
+  snake1=[{x:100,y:200}];
+  snake2=[{x:500,y:200}];
+
+  dir1={x:size,y:0};
+  dir2={x:-size,y:0};
+
+  food=spawnFood();
+  score=0;
+  gameOver=false;
+}
+
+resetGame();
+
 document.addEventListener("keydown", e => {
 
-  // Player 1 WASD
   if(e.key==="w") dir1={x:0,y:-size};
   if(e.key==="s") dir1={x:0,y:size};
   if(e.key==="a") dir1={x:-size,y:0};
   if(e.key==="d") dir1={x:size,y:0};
 
-  // Player 2 Arrows
   if(e.key==="ArrowUp") dir2={x:0,y:-size};
   if(e.key==="ArrowDown") dir2={x:0,y:size};
   if(e.key==="ArrowLeft") dir2={x:-size,y:0};
@@ -74,17 +75,17 @@ document.addEventListener("keydown", e => {
 
 function moveSnake(snake,dir){
 
-  const head = {
-    x: snake[0].x + dir.x,
-    y: snake[0].y + dir.y
-  };
+  const head={
+    x:snake[0].x+dir.x,
+    y:snake[0].y+dir.y
+  }
 
   snake.unshift(head);
 
   if(head.x===food.x && head.y===food.y){
     score++;
-    food = spawnFood();
-  } else {
+    food=spawnFood();
+  }else{
     snake.pop();
   }
 }
@@ -96,16 +97,24 @@ function drawSnake(snake,color){
   });
 }
 
-function collision(head){
-
-  if(head.x<0 || head.y<0 || head.x>=width || head.y>=height)
-    return true;
-
-  for(let s of snake1.concat(snake2).slice(1)){
-    if(head.x===s.x && head.y===s.y) return true;
+function hitSelf(head,snake){
+  for(let i=1;i<snake.length;i++){
+    if(head.x===snake[i].x && head.y===snake[i].y)
+      return true;
   }
-
   return false;
+}
+
+function hitOther(head,other){
+  for(let s of other){
+    if(head.x===s.x && head.y===s.y)
+      return true;
+  }
+  return false;
+}
+
+function wall(hit){
+  return hit.x<0 || hit.y<0 || hit.x>=width || hit.y>=height;
 }
 
 function update(){
@@ -115,7 +124,17 @@ function update(){
   moveSnake(snake1,dir1);
   moveSnake(snake2,dir2);
 
-  if(collision(snake1[0]) || collision(snake2[0])){
+  const h1=snake1[0];
+  const h2=snake2[0];
+
+  if(
+    wall(h1) ||
+    wall(h2) ||
+    hitSelf(h1,snake1) ||
+    hitSelf(h2,snake2) ||
+    hitOther(h1,snake2) ||
+    hitOther(h2,snake1)
+  ){
     gameOver=true;
   }
 
@@ -133,36 +152,21 @@ function draw(){
   drawSnake(snake2,"cyan");
 
   ctx.fillStyle="white";
+  ctx.font="16px monospace";
   ctx.fillText("Score: "+score,10,20);
 
   if(gameOver){
-    ctx.fillStyle="white";
     ctx.font="30px monospace";
-    ctx.fillText("DERP! Game Over",200,200);
+    ctx.fillText("DERP! GAME OVER",190,200);
     ctx.font="16px monospace";
-    ctx.fillText("Press R to restart",230,230);
+    ctx.fillText("Press R to restart",220,230);
   }
 
 }
 
-function resetGame(){
-
-  snake1=[{x:100,y:200}];
-  snake2=[{x:500,y:200}];
-
-  dir1={x:size,y:0};
-  dir2={x:-size,y:0};
-
-  food=spawnFood();
-  score=0;
-  gameOver=false;
-}
-
 function loop(){
-
   update();
   draw();
-
 }
 
 setInterval(loop,120);
