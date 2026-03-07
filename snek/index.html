@@ -2,6 +2,7 @@
 <html>
 <head>
 <title>Derpy Co-op Snek</title>
+
 <style>
 body{
   background:#111;
@@ -9,10 +10,15 @@ body{
   text-align:center;
   font-family:monospace;
 }
+
 canvas{
   background:#000;
   border:4px solid white;
   margin-top:20px;
+}
+
+.controls{
+  margin-top:10px;
 }
 </style>
 </head>
@@ -20,7 +26,16 @@ canvas{
 <body>
 
 <h1>🐍 Derpy Co-op Snek 🐍</h1>
-<p>Player1: WASD | Player2: Arrow Keys</p>
+
+<p>
+Player1: WASD | Player2: Arrow Keys
+</p>
+
+<div class="controls">
+Speed:
+<input type="range" id="speedSlider" min="40" max="300" value="120">
+<span id="speedLabel">120 ms</span>
+</div>
 
 <canvas id="game" width="600" height="400"></canvas>
 
@@ -34,6 +49,8 @@ const width = canvas.width;
 const height = canvas.height;
 
 let snake1, snake2, dir1, dir2, food, score, gameOver;
+let speed = 120;
+let loopTimer;
 
 function spawnFood(){
   return {
@@ -164,12 +181,26 @@ function draw(){
 
 }
 
-function loop(){
+function gameLoop(){
   update();
   draw();
 }
 
-setInterval(loop,120);
+function startLoop(){
+  clearInterval(loopTimer);
+  loopTimer = setInterval(gameLoop, speed);
+}
+
+startLoop();
+
+const slider = document.getElementById("speedSlider");
+const label = document.getElementById("speedLabel");
+
+slider.addEventListener("input", () => {
+  speed = slider.value;
+  label.textContent = speed + " ms";
+  startLoop();
+});
 
 </script>
 
