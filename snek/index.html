@@ -74,6 +74,8 @@ let foodEmoji;
 let speed=120;
 let loopTimer;
 
+const gameOverMsgs=["snex made bad life choices", "snex ragret everything", "ex-snex", "no step on snek"]
+
 const foods=[
 	// fruits
 	"🍇", "🍈", "🍉", "🍊", "🍋", "🍋‍🟩", "🍌", "🍍", "🥭", "🍎", "🍏", "🍐", "🍑", "🍒", "🍓", "🫐", "🥝", "🍅", "🫒", "🥥",
@@ -253,9 +255,10 @@ if(gameOver) return;
 for(let i=0;i<snakes.length;i++)
 moveSnake(i);
 
-if(collision())
+if(collision()){
 gameOver=true;
-
+gameOverMsg=gameOverMsgs[Math.floor(Math.random()*gameOverMsgs.length)];
+}
 }
 
 function draw(){
@@ -275,7 +278,7 @@ ctx.fillText("Score: "+score,10,20);
 
 if(gameOver){
 ctx.font="28px monospace";
-ctx.fillText("snex ragret everything",130,200);
+ctx.fillText(gameOverMsg,130,200);
 ctx.font="16px monospace";
 ctx.fillText("press R or restart",230,230);
 }
