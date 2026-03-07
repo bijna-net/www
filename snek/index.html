@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Derpy Co-op Snek</title>
+<title>Co-op Snek</title>
 
 <style>
 body{
@@ -25,7 +25,7 @@ canvas{
 
 <body>
 
-<h1>🐍 Derpy Co-op Snek 🐍</h1>
+<h1>🐍 Co-op Snek 🐍</h1>
 
 <p>
 Player1: WASD | Player2: Arrow Keys
@@ -49,10 +49,15 @@ const width = canvas.width;
 const height = canvas.height;
 
 let snake1, snake2, dir1, dir2, food, score, gameOver;
+let foodEmoji;
+
 let speed = 120;
 let loopTimer;
 
+const foods = ["🍎","🍔","🍕","🍩","🌮","🍪","🧀"];
+
 function spawnFood(){
+  foodEmoji = foods[Math.floor(Math.random()*foods.length)];
   return {
     x: Math.floor(Math.random()*(width/size))*size,
     y: Math.floor(Math.random()*(height/size))*size
@@ -108,10 +113,30 @@ function moveSnake(snake,dir){
 }
 
 function drawSnake(snake,color){
+
   ctx.fillStyle=color;
-  snake.forEach(s=>{
+
+  snake.forEach((s,i)=>{
     ctx.fillRect(s.x,s.y,size,size);
+
+    if(i===0){
+      // goofy eyes
+      ctx.fillStyle="white";
+      ctx.beginPath();
+      ctx.arc(s.x+6,s.y+8,3,0,Math.PI*2);
+      ctx.arc(s.x+14,s.y+8,3,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle="black";
+      ctx.beginPath();
+      ctx.arc(s.x+6,s.y+8,1.5,0,Math.PI*2);
+      ctx.arc(s.x+14,s.y+8,1.5,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.fillStyle=color;
+    }
   });
+
 }
 
 function hitSelf(head,snake){
@@ -162,8 +187,8 @@ function draw(){
   ctx.fillStyle="black";
   ctx.fillRect(0,0,width,height);
 
-  ctx.fillStyle="red";
-  ctx.fillRect(food.x,food.y,size,size);
+  ctx.font="20px serif";
+  ctx.fillText(foodEmoji,food.x+2,food.y+18);
 
   drawSnake(snake1,"lime");
   drawSnake(snake2,"cyan");
@@ -173,10 +198,10 @@ function draw(){
   ctx.fillText("Score: "+score,10,20);
 
   if(gameOver){
-    ctx.font="30px monospace";
-    ctx.fillText("DERP! GAME OVER",190,200);
+    ctx.font="28px monospace";
+    ctx.fillText("the snakes made a bad life choice",110,200);
     ctx.font="16px monospace";
-    ctx.fillText("Press R to restart",220,230);
+    ctx.fillText("press R to try again",220,230);
   }
 
 }
