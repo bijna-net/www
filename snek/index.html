@@ -27,15 +27,30 @@ canvas{
 
 <h1>🐍 Co-op Snek 🐍</h1>
 
-<p>
-Player1: WASD | Player2: Arrow Keys
-</p>
-
 <div class="controls">
+
+Players:
+<select id="playerCount">
+<option value="1">1</option>
+<option value="2" selected>2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+</select>
+
 Speed:
 <input type="range" id="speedSlider" min="40" max="300" value="120">
 <span id="speedLabel">120 ms</span>
+
+<button onclick="resetGame()">Start / Restart</button>
+
 </div>
+
+<p>
+P1: WASD |
+P2: Arrows |
+P3: IJKL |
+P4: TFGH
+</p>
 
 <canvas id="game" width="600" height="400"></canvas>
 
@@ -48,183 +63,223 @@ const size = 20;
 const width = canvas.width;
 const height = canvas.height;
 
-let snake1, snake2, dir1, dir2, food, score, gameOver;
+let snakes=[];
+let dirs=[];
+let score=0;
+let gameOver=false;
+
+let food;
 let foodEmoji;
 
-let speed = 120;
+let speed=120;
 let loopTimer;
 
-const foods = ["🍎","🍔","🍕","🍩","🌮","🍪","🧀"];
+const foods=["🍎","🍔","🍕","🍩","🌮","🍪","🧀"];
+
+const spawnPositions=[
+{x:100,y:200},
+{x:500,y:200},
+{x:300,y:100},
+{x:300,y:300}
+];
+
+const colors=["lime","cyan","yellow","magenta"];
 
 function spawnFood(){
-  foodEmoji = foods[Math.floor(Math.random()*foods.length)];
-  return {
-    x: Math.floor(Math.random()*(width/size))*size,
-    y: Math.floor(Math.random()*(height/size))*size
+  foodEmoji=foods[Math.floor(Math.random()*foods.length)];
+  return{
+    x:Math.floor(Math.random()*(width/size))*size,
+    y:Math.floor(Math.random()*(height/size))*size
   }
 }
 
 function resetGame(){
 
-  snake1=[{x:100,y:200}];
-  snake2=[{x:500,y:200}];
+  const playerCount=parseInt(document.getElementById("playerCount").value);
 
-  dir1={x:size,y:0};
-  dir2={x:-size,y:0};
+  snakes=[];
+  dirs=[];
+
+  for(let i=0;i<playerCount;i++){
+    snakes.push([{x:spawnPositions[i].x,y:spawnPositions[i].y}]);
+    dirs.push({x:size,y:0});
+  }
 
   food=spawnFood();
   score=0;
   gameOver=false;
+
 }
 
 resetGame();
 
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown",e=>{
 
-  if(e.key==="w") dir1={x:0,y:-size};
-  if(e.key==="s") dir1={x:0,y:size};
-  if(e.key==="a") dir1={x:-size,y:0};
-  if(e.key==="d") dir1={x:size,y:0};
+// P1
+if(e.key==="w") dirs[0]={x:0,y:-size};
+if(e.key==="s") dirs[0]={x:0,y:size};
+if(e.key==="a") dirs[0]={x:-size,y:0};
+if(e.key==="d") dirs[0]={x:size,y:0};
 
-  if(e.key==="ArrowUp") dir2={x:0,y:-size};
-  if(e.key==="ArrowDown") dir2={x:0,y:size};
-  if(e.key==="ArrowLeft") dir2={x:-size,y:0};
-  if(e.key==="ArrowRight") dir2={x:size,y:0};
+// P2
+if(e.key==="ArrowUp" && dirs[1]) dirs[1]={x:0,y:-size};
+if(e.key==="ArrowDown" && dirs[1]) dirs[1]={x:0,y:size};
+if(e.key==="ArrowLeft" && dirs[1]) dirs[1]={x:-size,y:0};
+if(e.key==="ArrowRight" && dirs[1]) dirs[1]={x:size,y:0};
 
-  if(gameOver && e.key==="r") resetGame();
+// P3
+if(e.key==="i" && dirs[2]) dirs[2]={x:0,y:-size};
+if(e.key==="k" && dirs[2]) dirs[2]={x:0,y:size};
+if(e.key==="j" && dirs[2]) dirs[2]={x:-size,y:0};
+if(e.key==="l" && dirs[2]) dirs[2]={x:size,y:0};
+
+// P4
+if(e.key==="t" && dirs[3]) dirs[3]={x:0,y:-size};
+if(e.key==="g" && dirs[3]) dirs[3]={x:0,y:size};
+if(e.key==="f" && dirs[3]) dirs[3]={x:-size,y:0};
+if(e.key==="h" && dirs[3]) dirs[3]={x:size,y:0};
+
+if(gameOver && e.key==="r") resetGame();
 
 });
 
-function moveSnake(snake,dir){
+function moveSnake(i){
 
-  const head={
-    x:snake[0].x+dir.x,
-    y:snake[0].y+dir.y
-  }
+const snake=snakes[i];
+const dir=dirs[i];
 
-  snake.unshift(head);
+const head={
+x:snake[0].x+dir.x,
+y:snake[0].y+dir.y
+};
 
-  if(head.x===food.x && head.y===food.y){
-    score++;
-    food=spawnFood();
-  }else{
-    snake.pop();
-  }
+snake.unshift(head);
+
+if(head.x===food.x && head.y===food.y){
+score++;
+food=spawnFood();
+}else{
+snake.pop();
+}
+
+}
+
+function wall(h){
+return h.x<0||h.y<0||h.x>=width||h.y>=height;
+}
+
+function collision(){
+
+for(let i=0;i<snakes.length;i++){
+
+const head=snakes[i][0];
+
+if(wall(head)) return true;
+
+for(let j=0;j<snakes.length;j++){
+for(let k=(i===j?1:0);k<snakes[j].length;k++){
+
+const s=snakes[j][k];
+
+if(head.x===s.x && head.y===s.y)
+return true;
+
+}
+}
+
+}
+
+return false;
+
 }
 
 function drawSnake(snake,color){
 
-  ctx.fillStyle=color;
+ctx.fillStyle=color;
 
-  snake.forEach((s,i)=>{
-    ctx.fillRect(s.x,s.y,size,size);
+snake.forEach((s,i)=>{
 
-    if(i===0){
-      // goofy eyes
-      ctx.fillStyle="white";
-      ctx.beginPath();
-      ctx.arc(s.x+6,s.y+8,3,0,Math.PI*2);
-      ctx.arc(s.x+14,s.y+8,3,0,Math.PI*2);
-      ctx.fill();
+ctx.fillRect(s.x,s.y,size,size);
 
-      ctx.fillStyle="black";
-      ctx.beginPath();
-      ctx.arc(s.x+6,s.y+8,1.5,0,Math.PI*2);
-      ctx.arc(s.x+14,s.y+8,1.5,0,Math.PI*2);
-      ctx.fill();
+if(i===0){
 
-      ctx.fillStyle=color;
-    }
-  });
+ctx.fillStyle="white";
+
+ctx.beginPath();
+ctx.arc(s.x+6,s.y+8,3,0,Math.PI*2);
+ctx.arc(s.x+14,s.y+8,3,0,Math.PI*2);
+ctx.fill();
+
+ctx.fillStyle="black";
+
+ctx.beginPath();
+ctx.arc(s.x+6,s.y+8,1.5,0,Math.PI*2);
+ctx.arc(s.x+14,s.y+8,1.5,0,Math.PI*2);
+ctx.fill();
+
+ctx.fillStyle=color;
 
 }
 
-function hitSelf(head,snake){
-  for(let i=1;i<snake.length;i++){
-    if(head.x===snake[i].x && head.y===snake[i].y)
-      return true;
-  }
-  return false;
-}
+});
 
-function hitOther(head,other){
-  for(let s of other){
-    if(head.x===s.x && head.y===s.y)
-      return true;
-  }
-  return false;
-}
-
-function wall(hit){
-  return hit.x<0 || hit.y<0 || hit.x>=width || hit.y>=height;
 }
 
 function update(){
 
-  if(gameOver) return;
+if(gameOver) return;
 
-  moveSnake(snake1,dir1);
-  moveSnake(snake2,dir2);
+for(let i=0;i<snakes.length;i++)
+moveSnake(i);
 
-  const h1=snake1[0];
-  const h2=snake2[0];
-
-  if(
-    wall(h1) ||
-    wall(h2) ||
-    hitSelf(h1,snake1) ||
-    hitSelf(h2,snake2) ||
-    hitOther(h1,snake2) ||
-    hitOther(h2,snake1)
-  ){
-    gameOver=true;
-  }
+if(collision())
+gameOver=true;
 
 }
 
 function draw(){
 
-  ctx.fillStyle="black";
-  ctx.fillRect(0,0,width,height);
+ctx.fillStyle="black";
+ctx.fillRect(0,0,width,height);
 
-  ctx.font="20px serif";
-  ctx.fillText(foodEmoji,food.x+2,food.y+18);
+ctx.font="20px serif";
+ctx.fillText(foodEmoji,food.x+2,food.y+18);
 
-  drawSnake(snake1,"lime");
-  drawSnake(snake2,"cyan");
+for(let i=0;i<snakes.length;i++)
+drawSnake(snakes[i],colors[i]);
 
-  ctx.fillStyle="white";
-  ctx.font="16px monospace";
-  ctx.fillText("Score: "+score,10,20);
+ctx.fillStyle="white";
+ctx.font="16px monospace";
+ctx.fillText("Score: "+score,10,20);
 
-  if(gameOver){
-    ctx.font="28px monospace";
-    ctx.fillText("the snakes made a bad life choice",110,200);
-    ctx.font="16px monospace";
-    ctx.fillText("press R to try again",220,230);
-  }
+if(gameOver){
+ctx.font="28px monospace";
+ctx.fillText("the snakes regret everything",130,200);
+ctx.font="16px monospace";
+ctx.fillText("press R or restart",230,230);
+}
 
 }
 
 function gameLoop(){
-  update();
-  draw();
+update();
+draw();
 }
 
 function startLoop(){
-  clearInterval(loopTimer);
-  loopTimer = setInterval(gameLoop, speed);
+clearInterval(loopTimer);
+loopTimer=setInterval(gameLoop,speed);
 }
 
 startLoop();
 
-const slider = document.getElementById("speedSlider");
-const label = document.getElementById("speedLabel");
+const slider=document.getElementById("speedSlider");
+const label=document.getElementById("speedLabel");
 
-slider.addEventListener("input", () => {
-  speed = slider.value;
-  label.textContent = speed + " ms";
-  startLoop();
+slider.addEventListener("input",()=>{
+speed=slider.value;
+label.textContent=speed+" ms";
+startLoop();
 });
 
 </script>
