@@ -7,6 +7,12 @@ const inset = 0;
 const width = canvas.width;
 const height = canvas.height;
 
+let devMode = false;
+const mod = window.location.hash;
+
+if (mod === "#dev") document.body.style.backgroundColor = "red";
+
+let players;
 let snakes = [];
 let dirs = [];
 let score = [ 0, 0, 0, 0 ];
@@ -59,7 +65,7 @@ const spawnPositions = [
 const colors = ["#66f033", "#0096ff", "#ff8910", "#bf40bf"];
 
 function isGameOver() {
-  return gameOver.filter(x => !x).length <= 1;
+  return (players == 1) ? (gameOver[0] == true) : (gameOver.filter(x => !x).length <= 1);
 }
 
 function spawnFood() {
@@ -71,7 +77,7 @@ function spawnFood() {
 }
 
 function resetGame() {
-  const playerCount = parseInt(document.getElementById("playerCount").value);
+  players = parseInt(document.getElementById("playerCount").value);
 
   snakes = [];
   dirs = [
@@ -81,13 +87,13 @@ function resetGame() {
     { x: 0, y: -gridsize },
   ];
 
-  for (let i = 0; i < playerCount; i++) {
+  for (let i = 0; i < players; i++) {
     snakes.push([{ x: spawnPositions[i].x, y: spawnPositions[i].y }]);
   }
 
   food = spawnFood();
   score = [ 0, 0, 0, 0 ];
-  gameOver = [ false, false, false, false ];
+  for (let i = 0; i < snakes.length; i++) gameOver[i] = !(i < players);
 }
 
 resetGame();
@@ -125,10 +131,21 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "h" && dirs[3]) dirs[3] = { x: gridsize, y: 0 };
   }
 
-  if (isGameOver() && e.key === "r") resetGame();
+  if ((isGameOver() || devMode) && e.key === "r") resetGame();
+
+
+  if (mod === "#dev") {
+    if (e.key === "p") {
+      devMode = !devMode;
+      if (devMode) for (let i = 0; i < snakes.length; i++) dirs[i] = { x: 0, y: 0};
+      document.body.style.backgroundColor = "black";
+    }
+  }
 });
 
 function moveSnake(i) {
+  if (dirs[i].x == 0 && dirs[i].y == 0) return;
+
   const snake = snakes[i];
   const dir = dirs[i];
 
@@ -226,9 +243,9 @@ function draw() {
 
   ctx.fillStyle = "white";
   ctx.font = "16px monospace";
-  for (let i = 0; i < snakes.length; i++) {
+  for (let i = 0; i < 4; i++) {
     htmlScore[i].innerText = score[i];
-    htmlGameOver[i].innerText = gameOver[i] ? "DED" : "LIF";
+    htmlGameOver[i].innerText = (i < players) ? (gameOver[i] ? "DED" : "LIF") : "-";
   }
 
   if (isGameOver()) {
