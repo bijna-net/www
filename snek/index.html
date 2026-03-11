@@ -24,9 +24,28 @@
       <button onclick="resetGame()">Start / Restart</button>
     </div>
 
-    <p>P1: WASD | P2: Arrows | P3: IJKL | P4: TFGH</p>
+    <table>
+      <tr id="player">
+        <td class="p1">P1: WASD</td>
+	<td class="p2">P2: Arrows</td>
+	<td class="p3">P3: IJKL</td>
+	<td class="p4">P4: TFGH</td>
+      </tr>
+      <tr id="gameover">
+        <td class="p1">lif</td>
+	<td class="p2">lif</td>
+	<td class="p3">lif</td>
+	<td class="p4">lif</td>
+      </tr>
+      <tr id="score">
+        <td class="p1">0</td>
+	<td class="p2">0</td>
+	<td class="p3">0</td>
+	<td class="p4">0</td>
+      </tr>
+    </table>
 
-    <canvas id="game" width="600" height="400"></canvas>
+    <canvas id="game" width="620" height="620"></canvas>
     <script src="snek.js"></script>
   </body>
 </html>

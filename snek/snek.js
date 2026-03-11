@@ -1,14 +1,18 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const size = 20;
+const gridsize = 20;
+const canvassize = 600;
+const inset = 0;
 const width = canvas.width;
 const height = canvas.height;
 
 let snakes = [];
 let dirs = [];
-let score = 0;
-let gameOver = false;
+let score = [ 0, 0, 0, 0 ];
+let htmlScore = document.getElementById("score").children;
+let gameOver = [ false, false, false, false ];
+let htmlGameOver = document.getElementById("gameover").children;
 
 let food;
 let foodEmoji;
@@ -21,6 +25,7 @@ const gameOverMsgs = [
   "snex ragret everything",
   "ex-snex",
   "no step on snek",
+  "SNEK! SNEK! SNEEEEEEEEK!",
 ];
 
 const foods = [
@@ -45,19 +50,23 @@ const foods = [
 ];
 
 const spawnPositions = [
-  { x: 100, y: 200 },
-  { x: 500, y: 200 },
-  { x: 300, y: 100 },
-  { x: 300, y: 300 },
+  { x: inset, y: canvassize / 2 },
+  { x: canvassize - inset, y: canvassize / 2 },
+  { x: canvassize / 2, y: inset },
+  { x: canvassize / 2, y: canvassize - inset },
 ];
 
 const colors = ["lime", "cyan", "yellow", "magenta"];
 
+function isGameOver() {
+  return gameOver.filter(x => !x).length <= 1;
+}
+
 function spawnFood() {
   foodEmoji = foods[Math.floor(Math.random() * foods.length)];
   return {
-    x: Math.floor(Math.random() * (width / size)) * size,
-    y: Math.floor(Math.random() * (height / size)) * size,
+    x: Math.floor(Math.random() * (width / gridsize)) * gridsize,
+    y: Math.floor(Math.random() * (height / gridsize)) * gridsize,
   };
 }
 
@@ -65,46 +74,58 @@ function resetGame() {
   const playerCount = parseInt(document.getElementById("playerCount").value);
 
   snakes = [];
-  dirs = [];
+  dirs = [
+    { x: +gridsize, y: 0 },
+    { x: -gridsize, y: 0 },
+    { x: 0, y: +gridsize },
+    { x: 0, y: -gridsize },
+  ];
 
   for (let i = 0; i < playerCount; i++) {
     snakes.push([{ x: spawnPositions[i].x, y: spawnPositions[i].y }]);
-    dirs.push({ x: size, y: 0 });
   }
 
   food = spawnFood();
-  score = 0;
-  gameOver = false;
+  score = [ 0, 0, 0, 0 ];
+  gameOver = [ false, false, false, false ];
 }
 
 resetGame();
 
 document.addEventListener("keydown", (e) => {
   // P1
-  if (e.key === "w") dirs[0] = { x: 0, y: -size };
-  if (e.key === "s") dirs[0] = { x: 0, y: size };
-  if (e.key === "a") dirs[0] = { x: -size, y: 0 };
-  if (e.key === "d") dirs[0] = { x: size, y: 0 };
+  if (!gameOver[0]) {
+    if (e.key === "w") dirs[0] = { x: 0, y: -gridsize };
+    if (e.key === "s") dirs[0] = { x: 0, y: gridsize };
+    if (e.key === "a") dirs[0] = { x: -gridsize, y: 0 };
+    if (e.key === "d") dirs[0] = { x: gridsize, y: 0 };
+  }
 
   // P2
-  if (e.key === "ArrowUp" && dirs[1]) dirs[1] = { x: 0, y: -size };
-  if (e.key === "ArrowDown" && dirs[1]) dirs[1] = { x: 0, y: size };
-  if (e.key === "ArrowLeft" && dirs[1]) dirs[1] = { x: -size, y: 0 };
-  if (e.key === "ArrowRight" && dirs[1]) dirs[1] = { x: size, y: 0 };
+  if (!gameOver[1]) {
+    if (e.key === "ArrowUp" && dirs[1]) dirs[1] = { x: 0, y: -gridsize };
+    if (e.key === "ArrowDown" && dirs[1]) dirs[1] = { x: 0, y: gridsize };
+    if (e.key === "ArrowLeft" && dirs[1]) dirs[1] = { x: -gridsize, y: 0 };
+    if (e.key === "ArrowRight" && dirs[1]) dirs[1] = { x: gridsize, y: 0 };
+  }
 
   // P3
-  if (e.key === "i" && dirs[2]) dirs[2] = { x: 0, y: -size };
-  if (e.key === "k" && dirs[2]) dirs[2] = { x: 0, y: size };
-  if (e.key === "j" && dirs[2]) dirs[2] = { x: -size, y: 0 };
-  if (e.key === "l" && dirs[2]) dirs[2] = { x: size, y: 0 };
+  if (!gameOver[2]) {
+    if (e.key === "i" && dirs[2]) dirs[2] = { x: 0, y: -gridsize };
+    if (e.key === "k" && dirs[2]) dirs[2] = { x: 0, y: gridsize };
+    if (e.key === "j" && dirs[2]) dirs[2] = { x: -gridsize, y: 0 };
+    if (e.key === "l" && dirs[2]) dirs[2] = { x: gridsize, y: 0 };
+  }
 
   // P4
-  if (e.key === "t" && dirs[3]) dirs[3] = { x: 0, y: -size };
-  if (e.key === "g" && dirs[3]) dirs[3] = { x: 0, y: size };
-  if (e.key === "f" && dirs[3]) dirs[3] = { x: -size, y: 0 };
-  if (e.key === "h" && dirs[3]) dirs[3] = { x: size, y: 0 };
+  if (!gameOver[3]) {
+    if (e.key === "t" && dirs[3]) dirs[3] = { x: 0, y: -gridsize };
+    if (e.key === "g" && dirs[3]) dirs[3] = { x: 0, y: gridsize };
+    if (e.key === "f" && dirs[3]) dirs[3] = { x: -gridsize, y: 0 };
+    if (e.key === "h" && dirs[3]) dirs[3] = { x: gridsize, y: 0 };
+  }
 
-  if (gameOver && e.key === "r") resetGame();
+  if (isGameOver() && e.key === "r") resetGame();
 });
 
 function moveSnake(i) {
@@ -119,7 +140,7 @@ function moveSnake(i) {
   snake.unshift(head);
 
   if (head.x === food.x && head.y === food.y) {
-    score++;
+    score[i]++;
     food = spawnFood();
   } else {
     snake.pop();
@@ -131,28 +152,29 @@ function wall(h) {
 }
 
 function collision() {
+  let ret = [ false, false, false, false ];
   for (let i = 0; i < snakes.length; i++) {
     const head = snakes[i][0];
 
-    if (wall(head)) return true;
+    if (wall(head)) ret[i] = true;
 
     for (let j = 0; j < snakes.length; j++) {
       for (let k = i === j ? 1 : 0; k < snakes[j].length; k++) {
         const s = snakes[j][k];
 
-        if (head.x === s.x && head.y === s.y) return true;
+        if (head.x === s.x && head.y === s.y) ret[i] = true;
       }
     }
   }
 
-  return false;
+  return ret;
 }
 
 function drawSnake(snake, color) {
   ctx.fillStyle = color;
 
   snake.forEach((s, i) => {
-    ctx.fillRect(s.x, s.y, size, size);
+    ctx.fillRect(s.x, s.y, gridsize, gridsize);
 
     if (i === 0) {
       ctx.fillStyle = "white";
@@ -175,12 +197,18 @@ function drawSnake(snake, color) {
 }
 
 function update() {
-  if (gameOver) return;
+  if (isGameOver()) return;
 
   for (let i = 0; i < snakes.length; i++) moveSnake(i);
 
-  if (collision()) {
-    gameOver = true;
+  collide = collision();
+  for (let i = 0; i < snakes.length; i++)
+    if (collide[i]) {
+      gameOver[i] = true;
+      dirs[i] = { x: 0, y: 0 };
+    }
+
+  if (isGameOver()) {
     gameOverMsg = gameOverMsgs[Math.floor(Math.random() * gameOverMsgs.length)];
   }
 }
@@ -196,9 +224,12 @@ function draw() {
 
   ctx.fillStyle = "white";
   ctx.font = "16px monospace";
-  ctx.fillText("Score: " + score, 10, 20);
+  for (let i = 0; i < snakes.length; i++) {
+    htmlScore[i].innerText = score[i];
+    htmlGameOver[i].innerText = gameOver[i] ? "ded" : "lif";
+  }
 
-  if (gameOver) {
+  if (isGameOver()) {
     ctx.font = "28px monospace";
     ctx.fillText(gameOverMsg, 130, 200);
     ctx.font = "16px monospace";

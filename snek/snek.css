@@ -5,10 +5,38 @@ body {
   font-family: monospace;
 }
 
+table, td {
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
 canvas {
   background: #000;
   border: 4px solid white;
   margin-top: 20px;
+}
+
+.p1 {
+  background: lime;
+  color: black;
+}
+
+.p2 {
+  background: cyan;
+  color: black;
+}
+
+.p3 {
+  background: yellow;
+  color: black;
+}
+
+.p4 {
+  background: magenta;
+  color: black;
 }
 
 .controls {
