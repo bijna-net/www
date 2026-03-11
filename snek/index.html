@@ -1,40 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<title>🐍 Snek 🐍</title>
-<link rel="stylesheet" href="snek.css" />
-</head>
+  <head>
+    <title>🐍 Snek 🐍</title>
+    <link rel="stylesheet" href="snek.css" />
+  </head>
 
-<body>
+  <body>
+    <h1>🐍 Snek 🐍</h1>
 
-<h1>🐍 Snek 🐍</h1>
+    <div class="controls">
+      Players:
+      <select id="playerCount">
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
 
-<div class="controls">
+      Speed:
+      <input type="range" id="speedSlider" min="40" max="300" value="120" />
+      <span id="speedLabel">120 ms</span>
 
-Players:
-<select id="playerCount">
-<option value="1">1</option>
-<option value="2" selected>2</option>
-<option value="3">3</option>
-<option value="4">4</option>
-</select>
+      <button onclick="resetGame()">Start / Restart</button>
+    </div>
 
-Speed:
-<input type="range" id="speedSlider" min="40" max="300" value="120">
-<span id="speedLabel">120 ms</span>
+    <p>P1: WASD | P2: Arrows | P3: IJKL | P4: TFGH</p>
 
-<button onclick="resetGame()">Start / Restart</button>
-
-</div>
-
-<p>
-P1: WASD |
-P2: Arrows |
-P3: IJKL |
-P4: TFGH
-</p>
-
-<canvas id="game" width="600" height="400"></canvas>
-<script src="snek.js"></script>
-</body>
+    <canvas id="game" width="600" height="400"></canvas>
+    <script src="snek.js"></script>
+  </body>
 </html>
