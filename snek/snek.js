@@ -21,10 +21,10 @@ let speed = 120;
 let loopTimer;
 
 const gameOverMsgs = [
-  "snex made bad life choices",
-  "snex ragret everything",
-  "ex-snex",
-  "no step on snek",
+  "SNEX MADE BAD LIFE CHOICES",
+  "SNEX RAGRET EVERYTHING",
+  "EX-SNEX",
+  "WHO STEP ON SNEK?",
   "SNEK! SNEK! SNEEEEEEEEK!",
 ];
 
@@ -226,14 +226,14 @@ function draw() {
   ctx.font = "16px monospace";
   for (let i = 0; i < snakes.length; i++) {
     htmlScore[i].innerText = score[i];
-    htmlGameOver[i].innerText = gameOver[i] ? "ded" : "lif";
+    htmlGameOver[i].innerText = gameOver[i] ? "DED" : "LIF";
   }
 
   if (isGameOver()) {
     ctx.font = "28px monospace";
     ctx.fillText(gameOverMsg, 130, 200);
     ctx.font = "16px monospace";
-    ctx.fillText("press R or restart", 230, 230);
+    ctx.fillText("PRESS R OR RESTART", 230, 230);
   }
 }
 
