@@ -170,25 +170,27 @@ function collision() {
   return ret;
 }
 
-function drawSnake(snake, color) {
+function drawSnake(snake, color, number) {
   ctx.fillStyle = color;
 
   snake.forEach((s, i) => {
     ctx.fillRect(s.x, s.y, gridsize, gridsize);
 
     if (i === 0) {
+      ctx.font = "10px monospace"
+      ctx.fillText("👅", s.x + 4, s.y + 22);
       ctx.fillStyle = "white";
 
       ctx.beginPath();
-      ctx.arc(s.x + 6, s.y + 8, 3, 0, Math.PI * 2);
-      ctx.arc(s.x + 14, s.y + 8, 3, 0, Math.PI * 2);
+      ctx.arc(s.x + 6, s.y + 8, 3 + ((number & 1) << 1), 0, Math.PI * 2);
+      ctx.arc(s.x + 14, s.y + 8, 3 + (number & 2), 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = "black";
 
       ctx.beginPath();
-      ctx.arc(s.x + 6, s.y + 8, 1.5, 0, Math.PI * 2);
-      ctx.arc(s.x + 14, s.y + 8, 1.5, 0, Math.PI * 2);
+      ctx.arc(s.x + 6, s.y + 8, 1.5 + 0.5 * (number > 1), 0, Math.PI * 2);
+      ctx.arc(s.x + 14, s.y + 8, 1.5 + 0.5 * (number > 1), 0, Math.PI * 2);
       ctx.fill();
 
       ctx.fillStyle = color;
@@ -217,10 +219,10 @@ function draw() {
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, width, height);
 
-  ctx.font = "20px serif";
+  ctx.font = "20px monospace";
   ctx.fillText(foodEmoji, food.x + 2, food.y + 18);
 
-  for (let i = 0; i < snakes.length; i++) drawSnake(snakes[i], colors[i]);
+  for (let i = 0; i < snakes.length; i++) drawSnake(snakes[i], colors[i], i);
 
   ctx.fillStyle = "white";
   ctx.font = "16px monospace";
