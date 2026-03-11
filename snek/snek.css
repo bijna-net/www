@@ -20,22 +20,22 @@ canvas {
 }
 
 .p1 {
-  background: lime;
+  background: #66f033;
   color: black;
 }
 
 .p2 {
-  background: cyan;
+  background: #0096ff;
   color: black;
 }
 
 .p3 {
-  background: yellow;
+  background: #ff8910;
   color: black;
 }
 
 .p4 {
-  background: magenta;
+  background: #bf40bf;
   color: black;
 }
 

@@ -56,7 +56,7 @@ const spawnPositions = [
   { x: canvassize / 2, y: canvassize - inset },
 ];
 
-const colors = ["lime", "cyan", "yellow", "magenta"];
+const colors = ["#66f033", "#0096ff", "#ff8910", "#bf40bf"];
 
 function isGameOver() {
   return gameOver.filter(x => !x).length <= 1;
